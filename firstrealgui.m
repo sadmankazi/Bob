@@ -2,7 +2,7 @@ function varargout = firstrealgui(varargin)
 
 % Copyright (C) 2016 Kazi Sadman (Shull Research Group, Northwestern Uni.)
 % 
-% This is Version 3.2 of the GUI "BOB."
+% This is Version 3.3 of the GUI "BOB."
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -107,8 +107,9 @@ varargout{1} = handles.output;
 % --- Executes on button press in loadQCM.
 function loadQCM_Callback(hObject, eventdata, handles)
 
-[FileName,PathName] = uigetfile('~/Google Drive/*.mat', 'File Selector');
-
+% [FileName,PathName] = uigetfile('~/Google Drive/*.mat', 'File Selector');
+[FileName,PathName] = uigetfile('File Selector');
+handles.filename = FileName;
 % If someone cancels out of the uigetfile dialog, filename and pathname will
 % both be 0. This checks if that is the case.
 if ~FileName
@@ -250,7 +251,7 @@ guidata(hObject,handles)
 % --- Executes on button press in plotqcmdata.
 function plotqcmdata_Callback(hObject, eventdata, handles)
 
-if ~isfield(handles,'fieldnames')
+if ~isfield(handles,'filename')
     set(handles.statusupdate, 'String', 'Load QCM data first!','Foregroundcolor','red');
     return
 end
