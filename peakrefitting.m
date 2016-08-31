@@ -265,8 +265,8 @@ freq_lowerlim = locs(1) - halfg*factor_range_fit;
 
 p0= [f0(1) halfg(1) phi  Gmax(1) coffset soffset];            % Array of initial guesses for lorentzcond function
 freq1 = freq(freqidx_lower:freqidx_upper);                    % Appropriate freq range from fit factor
-cond1 = smooth(conductance(freqidx_lower:freqidx_upper),3);   % Appropriate cond range from fit factor (added some small smoothing)
-sus1 = smooth(susceptance(freqidx_lower:freqidx_upper),3);
+cond1 = conductance(freqidx_lower:freqidx_upper);             % Appropriate cond range from fit factor (added some small smoothing)
+sus1 = susceptance(freqidx_lower:freqidx_upper);
 
 options=optimset('display','off','tolfun',1e-10,'tolx',1e-10,'MaxIter',5000);
 lb(1:length(p0)) = -Inf; %Assigns the lower bound to the parameters to -Inf

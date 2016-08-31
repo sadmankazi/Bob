@@ -897,43 +897,38 @@ if handles.delf{1} > handles.delg{1}
        set(handles.statusupdate, 'String', 'Shifts not in the bulk limit!','Foregroundcolor','red'); 
 end
 
-calcprops=figure('units','inches','Position', [2.5, 4, 12, 10]);
-subplot(2,2,1)
-plot(handles.t,handles.delf{1},'k+',handles.t,handles.delf{3},'ro',handles.t,handles.delf{5},'bx');
-xlabel('Time (min)');
-ylabel('\Deltaf (Hz)');
-legend('n=1','n=3','n=5');
-title('(a) \Deltaf')
-
-subplot(2,2,2)
-plot(handles.t,handles.delg{1},'k+',handles.t,handles.delg{3},'ro',handles.t,handles.delg{5},'bx');
-xlabel('Time (min)');
-ylabel('\Delta\Gamma (Hz)');
-title('(b) \Delta\Gamma')
+calcprops=figure('units','inches','Position', [2.5, 4, 12, 5]);
 
 %Calculate phase angle based on bulk limit equations:
 phi1=2.*atan(-handles.delf{1}./handles.delg{1}).*(180/pi);
 phi3=2.*atan(-handles.delf{3}./handles.delg{3}).*(180/pi);
 phi5=2.*atan(-handles.delf{5}./handles.delg{5}).*(180/pi);
 
-subplot(2,2,3)
+subplot(1,2,1)
 plot(handles.t,phi1,'k+',handles.t,phi3,'ro',handles.t,phi5,'bx');
 xlabel('Time (min)');
 ylabel('\phi (Degrees)');
-% ylim([0 90])
-title('(c) \phi')
+
+title('(a) \phi')
 
 % Calculate Complex Modulus from phase angle
 pG1=(handles.delf{1}.*pi.*8.84e6./(5e6.*sind(phi1./2))).^2;
 pG3=(handles.delf{3}.*pi.*8.84e6./(5e6.*sind(phi3./2))).^2;
 pG5=(handles.delf{5}.*pi.*8.84e6./(5e6.*sind(phi5./2))).^2;
 
-subplot(2,2,4)
+subplot(1,2,2)
+yyaxis left
 plot(handles.t,pG1./1000,'k+',handles.t,pG3./1000,'ro',handles.t,pG5./1000,'bx');
 xlabel('Time (min)');
 ylabel('\rho|G_n^*| (Pa-g/cm^3)');
-title('(d) \rho|G_n^*|')
+title('(b) \rho|G_n^*|')
+set(gca, 'ycolor','k')
 
+yyaxis right 
+plot(handles.t,pG3./(1000*2*pi*3*5e6),'g--')
+legend('n=1','n=3','n=5','\rho|\eta^*|', 'location','best');
+ylabel('\rho|\eta_3^*| (Pa*s-g/cm^3)');
+set(gca, 'ycolor','k')
 
 function endindex_Callback(hObject, eventdata, handles)
 % hObject    handle to endindex (see GCBO)
