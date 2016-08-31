@@ -445,7 +445,7 @@ xlim(handles.axes6,[handles.t(start) handles.t(endidx)])
 xlabel(handles.axes14,'t (min)','fontweight','bold');
 ylabel(handles.axes14,'\Delta M_A (mg/m^2)','fontweight','bold');
 xlim(handles.axes14,[handles.t(start) handles.t(endidx)])
-legend(handles.axes14, '133','353','355');
+legend(handles.axes14, '133','353','355','location','best');
 
 ylabel(handles.axes10,'\rho |G*_3| (Pa-g/cm^3)','fontweight','bold');
 xlabel(handles.axes10,'t (min)','fontweight','bold');
