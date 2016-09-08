@@ -1,4 +1,4 @@
-function varargout = firstrealgui(varargin)
+function varargout = allinonegui(varargin)
 
 % Copyright (C) 2016 Kazi Sadman (Shull Research Group, Northwestern Uni.)
 % 
@@ -17,37 +17,37 @@ function varargout = firstrealgui(varargin)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-% FIRSTREALGUI MATLAB code for firstrealgui.fig
-%      FIRSTREALGUI, by itself, creates a new FIRSTREALGUI or raises the existing
+% ALLINONEGUI MATLAB code for allinonegui.fig
+%      ALLINONEGUI, by itself, creates a new ALLINONEGUI or raises the existing
 %      singleton*.
 %
-%      H = FIRSTREALGUI returns the handle to a new FIRSTREALGUI or the handle to
+%      H = ALLINONEGUI returns the handle to a new ALLINONEGUI or the handle to
 %      the existing singleton*.
 %
-%      FIRSTREALGUI('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in FIRSTREALGUI.M with the given input arguments.
+%      ALLINONEGUI('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in ALLINONEGUI.M with the given input arguments.
 %
-%      FIRSTREALGUI('Property','Value',...) creates a new FIRSTREALGUI or raises the
+%      ALLINONEGUI('Property','Value',...) creates a new ALLINONEGUI or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before firstrealgui_OpeningFcn gets called.  An
+%      applied to the GUI before allinonegui_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to firstrealgui_OpeningFcn via varargin.
+%      stop.  All inputs are passed to allinonegui_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help firstrealgui
+% Edit the above text to modify the response to help allinonegui
 
-% Last Modified by GUIDE v2.5 02-Jul-2016 18:10:06
+% Last Modified by GUIDE v2.5 07-Sep-2016 22:04:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
-    'gui_OpeningFcn', @firstrealgui_OpeningFcn, ...
-    'gui_OutputFcn',  @firstrealgui_OutputFcn, ...
+    'gui_OpeningFcn', @allinonegui_OpeningFcn, ...
+    'gui_OutputFcn',  @allinonegui_OutputFcn, ...
     'gui_LayoutFcn',  [] , ...
     'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -59,17 +59,19 @@ if nargout
 else
     gui_mainfcn(gui_State, varargin{:});
 end
+
 % End initialization code - DO NOT EDIT
 
-% --- Executes just before firstrealgui is made visible.
-function firstrealgui_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before allinonegui is made visible.
+function allinonegui_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to firstrealgui (see VARARGIN)
+% varargin   command line arguments to allinonegui (see VARARGIN)
 
-% Choose default command line output for firstrealgui
+set(gcf,'Units','Pixels','Position',get(0,'ScreenSize')) % Make gui full size
+% Choose default command line output for allinonegui
 handles.output = hObject;
 handles.color{1}=[1 0 0]; % red
 handles.color{2}=[0 0.5 0]; % dark green
@@ -94,7 +96,7 @@ guidata(hObject,handles)
 handles.output = hObject;
 
 % --- Outputs from this function are returned to the command line.
-function varargout = firstrealgui_OutputFcn(hObject, eventdata, handles)
+function varargout = allinonegui_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -462,7 +464,7 @@ guidata(hObject, handles);
 % --- Executes on button press in makecontours.
 function makecontours_Callback(hObject, eventdata, handles)
 
-if ~isfield(handles,'d1out')
+if ~isfield(handles,'d1o ut')
     set(handles.statusupdate, 'String', 'No solved solutions!','Foregroundcolor','red');
     return
 end

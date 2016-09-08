@@ -269,9 +269,12 @@ cond1 = conductance(freqidx_lower:freqidx_upper);             % Appropriate cond
 sus1 = susceptance(freqidx_lower:freqidx_upper);
 
 options=optimset('display','off','tolfun',1e-10,'tolx',1e-10,'MaxIter',5000);
-lb(1:length(p0)) = -Inf; %Assigns the lower bound to the parameters to -Inf
-ub(1:length(p0)) = Inf;  %Assigns the upper bound to the parameters to Inf
-ub(3) = 90;              %Changes the phase angle upper bound to 90
+lb=[0   0     -90  -50 -200 -200];
+ub=[Inf 22000  90  160 500  500];
+    
+% lb(1:length(p0)) = -Inf; %Assigns the lower bound to the parameters to -Inf
+% ub(1:length(p0)) = Inf;  %Assigns the upper bound to the parameters to Inf
+% ub(3) = 90;              %Changes the phase angle upper bound to 90
 
 if get(handles.fitcond,'value') == 1;
     p = lsqcurvefit(@lfun4c,p0,freq1,cond1,lb,ub,options);
