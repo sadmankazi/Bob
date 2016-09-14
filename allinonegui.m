@@ -132,22 +132,34 @@ m = matfile(fullpathname);
 set(handles.dgliqn3,'String',num2str(round(m.freq_shift_ref(2,2))));
 handles.dgliq3 = str2num(get(handles.dgliqn3,'String'));      % experimentally calculated delta gamma at third harmonic of liquid alone
 
-b = find(~isnan(m.freq_shift(1:end,1))); %Indices of all elements in time that are not NaN
-handles.t = m.freq_shift(b(1:end-1),1);
-set(handles.endindex,'String',num2str(length(b)-1));
+b = find(~isnan(m.freq_shift(1:end,1))); %Indices of all elements in time that are NOT NaN
+
+handles.t = m.freq_shift(b,1);
+handles.delf{1} = m.freq_shift(b,2);
+handles.delf{3} = m.freq_shift(b,4);
+handles.delg{1} = m.freq_shift(b,3);
+handles.delg{3} = m.freq_shift(b,5);
+handles.delg{5} = m.freq_shift(b,7);
+handles.delf{5} = m.freq_shift(b,6);
+
+first = find(isnan(m.freq_shift(b,2)));
+third = find(isnan(m.freq_shift(b,4)));
+fifth = find(isnan(m.freq_shift(b,6)));
+
+b = b(~ismember(b,first));
+b = b(~ismember(b,third));
+b = b(~ismember(b,fifth));
+
+handles.t = handles.t(b);
+handles.delf{1} = handles.delf{1}(b);
+handles.delf{3} = handles.delf{3}(b);
+handles.delg{1} = handles.delg{1}(b);
+handles.delg{3} = handles.delg{3}(b);
+handles.delg{5} = handles.delg{5}(b);
+handles.delf{5} = handles.delf{5}(b);
+
+set(handles.endindex,'String',num2str(length(b)));
 endidx = str2num(get(handles.endindex,'String'));
-
-handles.delf{1} = m.freq_shift(b(1:end-1),2);
-handles.delf{3} = m.freq_shift(b(1:end-1),4);
-handles.delg{1} = m.freq_shift(b(1:end-1),3);
-handles.delg{3} = m.freq_shift(b(1:end-1),5);
-handles.delg{5} = m.freq_shift(b(1:end-1),7);
-handles.delf{5} = m.freq_shift(b(1:end-1),6);
-
-% for i = [1 3 5];
-%     a = find(isnan(m.freq_shift(1:end,i)));
-% 
-% end
 
 plot(handles.axes4, handles.t, handles.delf{1},'k+', handles.t, handles.delf{3},'ro',...
     handles.t, handles.delf{5},'bx');
@@ -176,7 +188,6 @@ handles.ref(2,2)= m.freq_shift_ref(2,2); % g3
 handles.ref(1,3)= m.freq_shift_ref(1,3); % f5
 handles.ref(2,3)= m.freq_shift_ref(2,3); % g5
 
-% if get(handles.dontloadspectras,'value')==0;
     if exist([PathName FileName(1:end-4) '_raw_spectras.mat'],'file');
         handles.spectrasloaded = 1;
         rawspectras = load([PathName FileName(1:end-4) '_raw_spectras.mat']);
@@ -189,17 +200,26 @@ handles.ref(2,3)= m.freq_shift_ref(2,3); % g5
         
         for i=1:numel(data);
             dex = find(not(cellfun('isempty', strfind(handles.fieldnames,strrep(data(i).time,'.','dot')))));
-            data(i).harmonic1 = rawspectras.(handles.fieldnames{dex(1)});
-            data(i).harmonic3 = rawspectras.(handles.fieldnames{dex(2)});
-            data(i).harmonic5 = rawspectras.(handles.fieldnames{dex(3)});
+            try
+                data(i).harmonic1 = rawspectras.(handles.fieldnames{dex(1)});
+            catch
+%                 data(i).harmonic1 = 0;
+            end
+            try
+                data(i).harmonic3 = rawspectras.(handles.fieldnames{dex(2)});
+            catch
+                data(i).harmonic3 = zeros(size(data(i).harmonic1));
+            end
+            try
+                data(i).harmonic5 = rawspectras.(handles.fieldnames{dex(3)});
+            catch
+                data(i).harmonic5 =  zeros(size(data(i).harmonic1));
+            end
         end
         handles.data = data;
     else
                 set(handles.statusupdate,'string','Warning: No raw spectras were found.','Foregroundcolor','red');
     end
-% else
-% end
-
 
 if exist([PathName '1_03_CA_C01.txt'],'file')
     
@@ -360,7 +380,7 @@ end
 set(handles.statusupdate, 'String', 'Solved!','Foregroundcolor',[0 0.5 0]);
 
 % In case the we don't solve for every point, delete the ones which weren't
-% solved for so that the matrix dimensions mtch later for plotting
+% solved for so that the matrix dimensions match later for plotting
 if step>1
     for i = [1 2 3];
         handles.d1out{i} = handles.d1out{i}(handles.d1out{i}~=0);
@@ -392,7 +412,7 @@ handles.rhodel5out = rhodelta(5, handles.grho5out, handles.phiout{2});
 f3pred = (2.*3.*f1^2).*(handles.drhoout{2}.*(real(delfstar2layer(3, handles.d1out{2}, handles.phiout{2}, handles.drhoout{2}))./zq));
 f1pred = (2.*1.*f1^2).*(handles.drhoout{2}.*(real(delfstar2layer(1, handles.d1out{2}, handles.phiout{2}, handles.drhoout{2}))./zq));
 g3pred = (2.*3.*f1^2).*(handles.drhoout{2}.*(imag(delfstar2layer(3, handles.d1out{2}, handles.phiout{2}, handles.drhoout{2}))./zq));
-g1pred = (2.*2.*f1^2).*(handles.drhoout{2}.*(imag(delfstar2layer(1, handles.d1out{2}, handles.phiout{2}, handles.drhoout{2}))./zq));
+g1pred = (2.*1.*f1^2).*(handles.drhoout{2}.*(imag(delfstar2layer(1, handles.d1out{2}, handles.phiout{2}, handles.drhoout{2}))./zq));
 f5pred = (2.*5.*f1^2).*(handles.drhoout{2}.*(real(delfstar2layer(5, handles.d1out{2}, handles.phiout{2}, handles.drhoout{2}))./zq));
 g5pred = (2.*5.*f1^2).*(handles.drhoout{2}.*(imag(delfstar2layer(5, handles.d1out{2}, handles.phiout{2}, handles.drhoout{2}))./zq));
 
@@ -628,7 +648,7 @@ close(gcbf)
 close all
 clear all
 reset(0)
-firstrealgui
+allinonegui
 clc
 
 % --- Executes on button press in radiobutton2.

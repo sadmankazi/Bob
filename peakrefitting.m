@@ -531,9 +531,9 @@ set(handles.statusupdate, 'String', 'Refitted data has been saved.','Foregroundc
 
 function [index, peak_detect, locs, width] = findrelevantpeaks(freq,conductance)
 
-smoothcond = smooth(conductance,30);
+smoothcond = smooth(conductance,20);
 
-%Note: peak_deteck and pks are be the same.
+%Note: peak_deteck and pks are the same.
 [peak_detect,index]=findpeaks(smoothcond,'sortstr','descend');
 [pks, locs, width, prominence] = findpeaks(smoothcond,freq,'sortstr','descend'); % Initial guesses
 
@@ -556,7 +556,7 @@ end
 % locs(indices) = [];
 % peak_detect(indices) = [];
 
-% Index of peaks greater than a third of the size of the max peak
+% Index of peaks greater than a tenth of the size of the max peak
 peakstofit = find(prominence>prominence(1)./3);
 index = index(peakstofit);
 locs = locs(peakstofit);
@@ -579,8 +579,15 @@ end
 % Warning if there are more than 3 peaks identified
 if length(index) > 3
     set(handles.statusupdate, 'String', 'More than 3 peaks found!','Foregroundcolor','red');
+    peakstofit = peakstofit(1:3);
+    index = index(peakstofit);
+    locs = locs(peakstofit);
+    width = width(peakstofit);
+    peak_detect = peak_detect(peakstofit);
     return
 end
+
+
 
 % --- Executes on button press in useprevn3.
 function useprevn3_Callback(hObject, eventdata, handles)
