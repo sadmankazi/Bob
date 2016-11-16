@@ -939,17 +939,16 @@ pG3=(handles.delf{3}.*pi.*8.84e6./(5e6.*sind(phi3./2))).^2;
 pG5=(handles.delf{5}.*pi.*8.84e6./(5e6.*sind(phi5./2))).^2;
 
 subplot(1,2,2)
-yyaxis left
 plot(handles.t,pG1./1000,'k+',handles.t,pG3./1000,'ro',handles.t,pG5./1000,'bx');
 xlabel('Time (min)');
 ylabel('\rho|G_n^*| (Pa-g/cm^3)');
 title('(b) \rho|G_n^*|')
 set(gca, 'ycolor','k')
 
-yyaxis right 
-plot(handles.t,pG3./(1000*2*pi*3*5e6),'g--')
+% yyaxis right 
+% plot(handles.t,pG3./(1000*2*pi*3*5e6),'g--')
 legend('n=1','n=3','n=5','\rho|\eta^*|', 'location','best');
-ylabel('\rho|\eta_3^*| (Pa*s-g/cm^3)');
+% ylabel('\rho|\eta_3^*| (Pa*s-g/cm^3)');
 set(gca, 'ycolor','k')
 
 function endindex_Callback(hObject, eventdata, handles)
