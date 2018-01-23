@@ -294,10 +294,10 @@ delfstarliq=@(n,etarho) (f1^1.5/zq)*(n*etarho/pi)^0.5*(1i-1);
 
 dgliq =1300; %Shift in g3 only due to the liquid (assuming water)
  
-if get(handles.filminliquid,'value')==1;
+if get(handles.filminliquid,'value')==1
     etarhoexpt=pi*dgliq^2*zq^2/(3*f1^3);
     Rliq=@(n,drho) delfstarliq(n,etarhoexpt)./sauerbrey(n,drho);  % defined in Elizabth's 2-layer paper
-elseif get(handles.filminliquid,'value')==0;
+elseif get(handles.filminliquid,'value')==0
     etarhoexpt = 0;
     Rliq=@(n,drho) 0+0i;
 end
@@ -307,19 +307,23 @@ Dn=@(n,d1,phi)   2.*pi.*d(n,d1,phi).*(1-1i.*tand(phi./2));    % defined in Eliza
 delfstardn=@(Dn,Rliq)  -(Dn.^-2+Rliq.^2)./((cot(Dn)./Dn)+Rliq);
 delfstar2layer=@(n,d1,phi,drho) delfstardn(Dn(n,d1,phi),Rliq(n,drho));
 
-pd = str2double(get(handles.rhod,'string'))*1e-6;
-rhog3 = 1000*str2double(get(handles.rhog,'string'));
-phi = str2double(get(handles.phi,'string'));
+pd = 1e-6*str2double(get(handles.rhod,'string')); %mg/m^2
+rhog3 = 1000*str2double(get(handles.rhog,'string')); %Pa-g/cm^3
+phi = str2double(get(handles.phi,'string')); %deg.
 
-n =1; 
-d1 = sqrt((n.^2.*f1^2.*(cosd(phi./2)).^2*pd.^2)/rhog3);
+% d1 = f1*pd./ ( sqrt(rhog3*sind(phi)+1i*rhog3*cosd(phi)) *(1-1i*tand(phi./2) ));
 
-f3pred = (2.*3.*f1^2).*(pd.*(real(delfstar2layer(3, d1, phi, pd))./zq));
-f1pred = (2.*1.*f1^2).*(pd.*(real(delfstar2layer(1, d1, phi, pd))./zq));
-g3pred = (2.*3.*f1^2).*(pd.*(imag(delfstar2layer(3, d1, phi, pd))./zq));
-g1pred = (2.*2.*f1^2).*(pd.*(imag(delfstar2layer(1, d1, phi, pd))./zq));
-f5pred = (2.*5.*f1^2).*(pd.*(real(delfstar2layer(5, d1, phi, pd))./zq));
-g5pred = (2.*5.*f1^2).*(pd.*(imag(delfstar2layer(5, d1, phi, pd))./zq));
+n=1;
+refn=3;
+lambdarhon = lambdarhof(refn, n, rhog3, phi); %Lambda rho for the harmonic of interest
+d1 = pd./lambdarhon;
+
+f1pred = (2.*1.*f1^2).*(pd*(real(delfstar2layer(1, d1, phi, pd))./zq));
+f3pred = (2.*3.*f1^2).*(pd*(real(delfstar2layer(3, d1, phi, pd))./zq));
+f5pred = (2.*5.*f1^2).*(pd*(real(delfstar2layer(5, d1, phi, pd))./zq));
+g1pred = (2.*1.*f1^2).*(pd*(imag(delfstar2layer(1, d1, phi, pd))./zq));
+g3pred = (2.*3.*f1^2).*(pd*(imag(delfstar2layer(3, d1, phi, pd))./zq));
+g5pred = (2.*5.*f1^2).*(pd*(imag(delfstar2layer(5, d1, phi, pd))./zq));
 
 set(handles.delf1,'string',num2str(f1pred));
 set(handles.delf3,'string',num2str(f3pred));
@@ -327,3 +331,35 @@ set(handles.delf5,'string',num2str(f5pred));
 set(handles.delg1,'string',num2str(g1pred));
 set(handles.delg3,'string',num2str(g3pred));
 set(handles.delg5,'string',num2str(g5pred));
+
+
+function lrho = lambdarhof(refn, n, grho, phi)
+if refn == n
+    lrho = 1/(n*5e6)*(grho^0.5)/cosd(phi/2);
+else
+    lrho = 1/(n*5e6)*((grho*(n^(phi/90))/(refn^(phi/90)))^0.5)/cosd(phi/2);
+end
+
+% grhoi = 1.2e8*1000; %Get modulus in the right units
+% phii = 20; %Get phi
+% refn = 3; %Get refn
+% 
+% lambdarhon = lambdarhof(refn, n, grhoi, phii); %Lambda rho for the harmonic of interest
+% dl = drho./lambdarhon; %Updates dl based on the new drho
+% 
+% delfstarc = sauerbrey(3,drho)*delfstar(dl, phii);%Calculates the frequency and dissipation
+% 
+% function F=sauerbrey(n,drho)
+% % Calculates the sauerbry shift based on the harmonic and areal density.
+% F=2*n*5e6^2*drho/8.84e6;
+% 
+% function F=delfstar(d,phi)  % input phase angle is in degrees
+% % Calculates delfstar (rhs of delf/delfsn equation) with input of d/lambda
+% % and phi
+% F=-(1/((2*pi*d)*(1-1i*tand(phi/2))))* ...
+%     tan(2*pi*d*(1-1i*tand(phi/2)));
+
+
+
+    
+

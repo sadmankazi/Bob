@@ -276,11 +276,11 @@ ub=[Inf 22000  90  160 500  500];
 % ub(1:length(p0)) = Inf;  %Assigns the upper bound to the parameters to Inf
 % ub(3) = 90;              %Changes the phase angle upper bound to 90
 
-if get(handles.fitcond,'value') == 1;
+if get(handles.fitcond,'value') == 1
     p = lsqcurvefit(@lfun4c,p0,freq1,cond1,lb,ub,options);
-elseif get(handles.fitsus,'value') == 1;
+elseif get(handles.fitsus,'value') == 1
     p = lsqcurvefit(@lfun4s,p0,freq1,sus1,lb,ub,options);
-elseif get(handles.fitcondsus,'value') == 1;
+elseif get(handles.fitcondsus,'value') == 1
     p = lsqcurvefit(@lfun4cs,p0,freq1,[cond1 sus1],lb,ub,options);
 end
 

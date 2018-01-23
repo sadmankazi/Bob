@@ -40,7 +40,7 @@ function varargout = allinonegui(varargin)
 
 % Edit the above text to modify the response to help allinonegui
 
-% Last Modified by GUIDE v2.5 07-Sep-2016 22:04:26
+% Last Modified by GUIDE v2.5 06-May-2017 16:20:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -70,23 +70,19 @@ function allinonegui_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to allinonegui (see VARARGIN)
 
-set(gcf,'Units','Pixels','Position',get(0,'ScreenSize')) % Make gui full size
+% set(gcf,'Units','Pixels','Position',get(0,'ScreenSize')) % Make gui full size
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0 0 1 1]);
 % Choose default command line output for allinonegui
 handles.output = hObject;
-handles.color{1}=[1 0 0]; % red
-handles.color{2}=[0 0.5 0]; % dark green
-handles.color{3}=[0 0 1]; % blue
-handles.marker{1}='+';
-handles.marker{2}='o';
-handles.marker{3}='s';
 
 % set(0,'DefaultAxesColorOrder',[0 0 1; 1 0 0; 0 0.5 0])
-set(0,'defaulttextfontsize',14)
+set(0,'defaulttextfontsize',18)
 set(0,'defaultlinemarkersize',10);
-set(0,'defaultaxeslinewidth',2.25);
-set(0,'defaultpatchlinewidth',2.25);
-set(0,'defaultaxesfontsize',14)
-set(0,'defaultlinelinewidth',1.5)
+set(0,'defaultaxeslinewidth',1.75);
+set(0,'defaultpatchlinewidth',1.75);
+set(0,'defaultaxesfontsize',16)
+set(0,'defaultlinelinewidth',2)
+set(0,'defaultAxesFontName', 'Apple SD Gothic Neo')
 
 handles.currentloaded = 0;      % Will be used later to skip code for current data if current isn't loaded
 handles.spectrasloaded = 0;     % Will be used later to throw error if spectras are not found
@@ -161,24 +157,19 @@ handles.delf{5} = handles.delf{5}(b);
 set(handles.endindex,'String',num2str(length(b)));
 endidx = str2num(get(handles.endindex,'String'));
 
-plot(handles.axes4, handles.t, handles.delf{1},'k+', handles.t, handles.delf{3},'ro',...
-    handles.t, handles.delf{5},'bx');
+plot(handles.axes4, handles.t, handles.delf{1},'k+', handles.t, handles.delf{3}./3,'ro',...
+    handles.t, handles.delf{5}./5,'bx');
 plot(handles.axes6, handles.t, handles.delg{1},'k+', handles.t, handles.delg{3},'ro',...
     handles.t, handles.delg{5},'bx');
 
-ylabel(handles.axes4,'\Deltaf (Hz)','fontweight','bold');
+ylabel(handles.axes4,'\Deltaf/n (Hz)','fontweight','bold');
 xlabel(handles.axes4,'t (min)','fontweight','bold');
 xlim(handles.axes4,[0 handles.t(endidx)]);
 legend(handles.axes4,'n=1','n=3','n=5','location','best')
 ylabel(handles.axes6,'\Delta\Gamma (Hz)','fontweight','bold');
 xlabel(handles.axes6,'t (min)','fontweight','bold');
 xlim(handles.axes6,[0 handles.t(endidx)]);
-
-% handles.t = 1.5;
-% handles.delf{1} = -11363 ;
-% handles.delf{3} = -35052;
-% handles.delg{3} = 424;
-% handles.delg{1} =  19;
+linkaxes([handles.axes4,handles.axes6],'x');
 
 % Save reference frequencies and dissipations
 handles.ref(1,1)= m.freq_shift_ref(1,1); % f1
@@ -188,17 +179,17 @@ handles.ref(2,2)= m.freq_shift_ref(2,2); % g3
 handles.ref(1,3)= m.freq_shift_ref(1,3); % f5
 handles.ref(2,3)= m.freq_shift_ref(2,3); % g5
 
-    if exist([PathName FileName(1:end-4) '_raw_spectras.mat'],'file');
+    if exist([PathName FileName(1:end-4) '_raw_spectras.mat'],'file')
         handles.spectrasloaded = 1;
         rawspectras = load([PathName FileName(1:end-4) '_raw_spectras.mat']);
         
         handles.fieldnames = fields(rawspectras);
         
-        for i=1:numel(handles.t);
+        for i=1:numel(handles.t)
             data(i).time=num2str(handles.t(i));
         end
         
-        for i=1:numel(data);
+        for i=1:numel(data)
             dex = find(not(cellfun('isempty', strfind(handles.fieldnames,strrep(data(i).time,'.','dot')))));
             try
                 data(i).harmonic1 = rawspectras.(handles.fieldnames{dex(1)});
@@ -260,9 +251,9 @@ else
 end
 
 % Update the status depending on what files were found and loaded:
-if handles.currentloaded && handles.spectrasloaded;
+if handles.currentloaded && handles.spectrasloaded
     set(handles.statusupdate, 'String', 'QCM data, raw spectras and current loaded.','Foregroundcolor',[0 0.5 0]);
-elseif ~handles.currentloaded && handles.spectrasloaded;
+elseif ~handles.currentloaded && handles.spectrasloaded
     set(handles.statusupdate, 'String', 'Warning: No current data was loaded.','Foregroundcolor',[1 0.5 0]);
 else
     set(handles.statusupdate, 'String', 'Warning: No spectras were loaded.','Foregroundcolor',[1 0.5 0]);
@@ -292,15 +283,15 @@ delfstarliq=@(n,etarho) (f1^1.5/zq)*(n*etarho/pi)^0.5*(1i-1);
 
 ndrho=3; % harmonic used for thickness calculation
 
-i=3;
 nh{1}=[1 3 3];
 nh{2}=[3 5 3];
 nh{3}=[3 5 5];
+i=length(nh);
 
-if get(handles.onelayer,'value')==0;
+if get(handles.onelayer,'value')==0
     handles.etarhoexpt=pi*handles.dgliq3^2*zq^2/(3*f1^3);
     Rliq=@(n,drho) delfstarliq(n,handles.etarhoexpt)./sauerbrey(n,drho);  % defined in Elizabth's 2-layer paper
-elseif get(handles.onelayer,'value')==1;
+elseif get(handles.onelayer,'value')==1
     handles.etarhoexpt = 0;
     Rliq=@(n,drho) 0+0i;
 end
@@ -323,7 +314,7 @@ endidx = str2num(get(handles.endindex,'String'));
 start = str2num(get(handles.startindex,'String'));
 step = str2num(get(handles.stepindex,'String'));
 
-for i = 1:i;
+for i = 1:i
     
     set(handles.statusupdate, 'String', [num2str(round(i/3*100)) ' % complete.'],'Foregroundcolor',[0 0.5 0]);
     drawnow
@@ -340,12 +331,12 @@ for i = 1:i;
         fdissratio=@(d1,phi,drho) -imag(delfstar2layer(nh{i}(3),d1,phi,drho))/(real(delfstar2layer(nh{i}(3),d1,phi,drho)));
         fharmratio=@(d1,phi,drho) real(delfstar2layer(nh{i}(2),d1,phi,drho))/(real(delfstar2layer(nh{i}(1),d1,phi,drho)));
         
-        if get(handles.onelayer,'value')==0;
+        if get(handles.onelayer,'value')==0
             f3tosolve=@(x) [fharmratio(x(1),x(2),x(3))-handles.eharmratio(k);...
                 fdissratio(x(1),x(2),x(3))-handles.edissratio(k);...
                 100*(drhocalc(ndrho, handles.delf{ndrho}(k),x(1),x(2),x(3))-x(3))];  %multiply by 100 to get enough accuracy
             inputsoln= soln;                               % Dynamic guesses for solving, i.e., previous solution is new initial guess
-        elseif get(handles.onelayer,'value')==1;
+        elseif get(handles.onelayer,'value')==1
             f3tosolve=@(x) [fharmratio(x(1),x(2),0)-handles.eharmratio(k);...
                 fdissratio(x(1),x(2),0)-handles.edissratio(k)];
             soln=soln(1:2);  % [not sure d1/lam/ phase angle] These are the initial guesses for d1/lam, phi and drho.
@@ -356,11 +347,11 @@ for i = 1:i;
         
         try
             
-            if get(handles.onelayer,'value')==0;
+            if get(handles.onelayer,'value')==0
                 [soln,error]=lsqnonlin(f3tosolve,inputsoln,lb,ub,options);
-            elseif get(handles.onelayer,'value')==1;
+            elseif get(handles.onelayer,'value')==1
                 [soln,error]=lsqnonlin(f3tosolve,inputsoln(1:2),lb(1:2),ub(1:2),options);
-                soln(3) = dfa./real(delfstardn(Dn(ndrho,soln(1),soln(2)),0))*zq./(2*1*f1.^2);
+                soln(3) = (dfa./real(delfstardn(Dn(ndrho,soln(1),soln(2)),0)))*zq./(2*1*f1.^2);
             end
             
         catch Err
@@ -382,7 +373,7 @@ set(handles.statusupdate, 'String', 'Solved!','Foregroundcolor',[0 0.5 0]);
 % In case the we don't solve for every point, delete the ones which weren't
 % solved for so that the matrix dimensions match later for plotting
 if step>1
-    for i = [1 2 3];
+    for i = 1:1:length(nh)
         handles.d1out{i} = handles.d1out{i}(handles.d1out{i}~=0);
         handles.phiout{i} = handles.phiout{i}(handles.phiout{i}~=0);
         handles.drhoout{i} = handles.drhoout{i}(handles.drhoout{i}~=0);
@@ -434,14 +425,14 @@ plot(handles.axes4, handles.t(start:step:endidx), handles.delf{1}(start:step:end
     handles.t(start:step:endidx), f5pred,'c.');
 
 plot(handles.axes6, handles.t(start:step:endidx), handles.delg{1}(start:step:endidx),'k+', ...
-    handles.t(start:step:endidx), handles.delg{3}(start:step:endidx),'r+', ...
+    handles.t(start:step:endidx), handles.delg{3}(start:step:endidx),'ro', ...
     handles.t(start:step:endidx), handles.delg{5}(start:step:endidx),'bx', handles.t(start:step:endidx), g5pred,'c.',...
     handles.t(start:step:endidx), g1pred,'c.',handles.t(start:step:endidx), g3pred,'c.');
 
 legend(handles.axes4,'n=1','n=3','n=5','Pred')
 
 
-if handles.currentloaded == 1;
+if handles.currentloaded == 1
     % Current Data & Plots:
     [~,handles.idx] = min(bsxfun(@(x,y)abs(x-y),handles.corrt',handles.t),[],2); % Find corresponding time points in longer current data
     totalhandles.chargedensity = cumtrapz(60.*handles.corrt,handles.corri)/1.27; % Total charge density delivered to solution until time t(x) in mC/cm^2
@@ -484,7 +475,7 @@ guidata(hObject, handles);
 % --- Executes on button press in makecontours.
 function makecontours_Callback(hObject, eventdata, handles)
 
-if ~isfield(handles,'d1o ut')
+if ~isfield(handles,'d1out')
     set(handles.statusupdate, 'String', 'No solved solutions!','Foregroundcolor','red');
     return
 end
@@ -518,10 +509,10 @@ for i = 1:n
     sauerbrey=@(n,drho) 2*n*f1^2*drho/zq;
     delfstarliq=@(n,etarho) (f1^1.5/zq)*(n*etarho/pi)^0.5*(1i-1);
     
-    if get(handles.onelayer,'value')==0;
+    if get(handles.onelayer,'value')==0
         handles.etarhoexpt=pi*handles.dgliq3^2*zq^2/(3*f1^3);
         Rliq=@(n,drho) delfstarliq(n,handles.etarhoexpt)/sauerbrey(n,drho);  % defined in Elizabth's 2-layer paper
-    elseif get(handles.onelayer,'value')==1;
+    elseif get(handles.onelayer,'value')==1
         Rliq=@(n,drho) 0;
         handles.etarhoexpt = 0;
     end
@@ -675,18 +666,7 @@ end
 % tend = 6;
 % w0 = 5e6;
 
-% handles.phiout([2 3]) = 90;
-% deletepoints = [1 5 13 17];
-% handles.t(deletepoints) = [];
-% handles.phiout(deletepoints) = [];
-% handles.drhoout(deletepoints) = [];
-% handles.grho3out(deletepoints) = [];
-% handles.rhodel3out(deletepoints) = [];
-% handles.rhodel1out(deletepoints) = [];
-% handles.sauerbreycorrection1(deletepoints) = [];
-% handles.sauerbreycorrection3(deletepoints) = [];
-% handles.t = handles.t-handles.t(1);
-calcprops=figure('units','inches','Position', [2.5, 4, 15, 5]);
+% calcprops=figure('units','inches','Position', [2.5, 4, 15, 5]);
 % Syntax: set(gcf,?position?,[a b W H])
 % (a,b) = is the lower left corner
 % H = the horizontal length of the window
@@ -696,87 +676,79 @@ endidx = str2num(get(handles.endindex,'String'));
 start = str2num(get(handles.startindex,'String'));
 step = str2num(get(handles.stepindex,'String'));
 
-a = subplot(1,3,1);
-plot(a, repmat(handles.t(start:step:endidx),1,3), 1e6*cell2mat(handles.drhoout')', '+');
-xlabel('t (min)');
-ylabel('\Delta M_A (mg/m^2)');
-% xlim([tbegin tend])
-% set(a, 'XTick', [tbegin:1:tend]);
-title('(a)','fontweight','bold');
-legend('133','353','355','location','best')
-% hold on
-% plot(handles.t(start:step:endidx)(kc),1e6*handles.drhoout(kc),'ro')
-% hold off
+% a = subplot(1,3,1);
+figure;
+% plot(a, repmat(handles.t(start:step:endidx),1,3), 1e6*cell2mat(handles.drhoout')', '+');
+plot(handles.t(50:end)./60, smooth((1e6*handles.drhoout{3}(50:end)-387)*100./387',10),'o');
+xlabel('t (h)');
+% ylabel('\Delta M_A (mg/m^2)');
+ylabel('wt % Water Uptake')
+% ylim([1125 1140])
+% xlim([10 90])
+% title('(a)','fontweight','bold');
+% legend('133','353','355','location','best')
 
-c = subplot(1,3,3);
-plot(c,repmat(handles.t(start:step:endidx),1,3), cell2mat(handles.phiout')', '+');
-xlabel('t (min)');
-ylabel('\phi (deg.)');
-% xlim([tbegin tend])
-% set(c, 'XTick', [tbegin:1:tend]);
-title('(c)', 'fontweight','bold');
-% set(gca,'YAxisLocation','Right');
-% hold on
-% plot(handles.t(kc-3),handles.phiout(kc-3),'ro')
-% hold off
-
+figure;
 b = subplot(1,3,2);
-% yyaxis(b,'left')
-plot(b,repmat(handles.t(start:step:endidx),1,3), 0.001*cell2mat(handles.grho3out')', '+'); %Multiply 0.001 to convert from Pa*kg/m^3 to Pa*g/cm^3
-ylabel('\rho |G^*_3| (Pa-g/cm^3)')
+semilogy(b,handles.t(start:step:endidx), 0.001*handles.grho3out{3}', '+'); %Multiply 0.001 to convert from Pa*kg/m^3 to Pa*g/cm^3
+ylabel(' Shear Modulus |G^*_3| (Pa)')
 set(b, 'ycolor','k')
 title('(b)')
-% yyaxis(b,'right')
-% plot(b,handles.t,(0.001*handles.grho3out)./(3*w0),'--','color',[0.4660 0.6740 0.1880])
-% ylabel('\rho |\eta^*_3| (Pa*s-g/cm^3)')
-% xlabel('t (min)')
-% set(b, 'ycolor','k')
-% ylim([0 1.65])
-% xlim([tbegin tend])
+xlabel('t (min)')
+xlim([10 90])
+ylim([10^8 10*10^8])
 % set(b, 'XTick', [tbegin:1:tend]);
-% legend('\rho |G^*_3|','Contour','\rho |\eta^*_3|','location','northwest')
+
+c = subplot(1,3,3);
+plot(c,handles.t(start:step:endidx),handles.phiout{3}', '+');
+xlabel('t (min)');
+ylabel('\phi (deg.)');
+ylim([0 15])
+xlim([10 90])
+title('(c)', 'fontweight','bold');
+
 
 % % calcprops.PaperPosition=[0 0 17 5];
 % % calcprops.PaperSize=[17 5];
 % % print(calcprops,'viscoelastic plots.eps','-depsc')
 % % saveas(calcprops,'viscoelastic plots.svg')
 
-thickness = figure('units','inches','Position', [2.5, 4, 15, 5]);
-a = subplot(1,3,1);
-plot(a, handles.t(start:step:endidx), handles.d1out{1},'k+',...
-    handles.t(start:step:endidx),handles.d3out,'ro',handles.t(start:step:endidx),handles.d5out,'bx');
-ylabel('d/\lambda_n');
-xlabel('t (min)');
-% xlim([tbegin tend])
-% set(a, 'XTick', [tbegin:1:tend]);
-title('(a)','fontweight','bold');
-legend('n=1','n=3','n=5','location','northwest')
-
-b = subplot(1,3,2);
-plot(b, handles.t(start:step:endidx), -1./handles.sauerbreycorrection1,'k+', handles.t(start:step:endidx), -1./handles.sauerbreycorrection3,'ro',handles.t(start:step:endidx), -1./handles.sauerbreycorrection5,'bx');
-title('(b)','fontweight','bold');
-ylabel('\rhod/(\rhod)_{sn}');
-xlabel('t (min)');
-% ylim(handles.axes16,[0 3])
-% xlim([tbegin tend])
-% ylim([0.85 1.35])
-% set(b, 'XTick', [tbegin:1:tend]);
-
-c = subplot(1,3,3);
-plot(c, handles.t(start:step:endidx), handles.rhodel1out*1000.,'k+', handles.t(start:step:endidx), handles.rhodel3out*1000,'ro',handles.t(start:step:endidx), handles.rhodel5out*1000,'bx'); %Multiply by 1000 to convert g/m^2
-title('(c)','fontweight','bold');
-ylabel('\rho\delta_n (g/m^2)');
-xlabel('t (min)');
-% xlim([tbegin tend])
-% ylim([0 10])
-% set(c, 'XTick', [tbegin:1:tend]);
+% thickness = figure('units','inches','Position', [2.5, 4, 15, 5]);
+% a = subplot(1,3,1);
+% plot(a, handles.t(start:step:endidx), handles.d1out{1},'k+',...
+%     handles.t(start:step:endidx),handles.d3out,'ro',handles.t(start:step:endidx),handles.d5out,'bx');
+% ylabel('d/\lambda_n');
+% xlabel('t (min)');
+% % xlim([tbegin tend])
+% % set(a, 'XTick', [tbegin:1:tend]);
+% title('(a)','fontweight','bold');
+% legend('n=1','n=3','n=5','location','northwest')
+% 
+% b = subplot(1,3,2);
+% plot(b, handles.t(start:step:endidx), -1./handles.sauerbreycorrection1,'k+', handles.t(start:step:endidx), -1./handles.sauerbreycorrection3,'ro',handles.t(start:step:endidx), -1./handles.sauerbreycorrection5,'bx');
+% title('(b)','fontweight','bold');
+% ylabel('\rhod/(\rhod)_{sn}');
+% xlabel('t (min)');
+% % ylim(handles.axes16,[0 3])
+% % xlim([tbegin tend])
+% % ylim([0.85 1.35])
+% % set(b, 'XTick', [tbegin:1:tend]);
+% 
+% c = subplot(1,3,3);
+% plot(c, handles.t(start:step:endidx), handles.rhodel1out*1000.,'k+', handles.t(start:step:endidx), handles.rhodel3out*1000,'ro',handles.t(start:step:endidx), handles.rhodel5out*1000,'bx'); %Multiply by 1000 to convert g/m^2
+% title('(c)','fontweight','bold');
+% ylabel('\rho\delta_n (g/m^2)');
+% xlabel('t (min)');
+% % xlim([tbegin tend])
+% % ylim([0 10])
+% % set(c, 'XTick', [tbegin:1:tend]);
 
 % thickness.PaperPosition=[0 0 12 5];
 % thickness.PaperSize=[12 5];
 % print(thickness,'thickness plots.eps','-depsc')
 % saveas(thickness,'thickness plots.svg')
 
-if handles.currentloaded == 1;
+if handles.currentloaded == 1
     
     handles.f=figure;
     
